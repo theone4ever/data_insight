@@ -6,8 +6,9 @@ import errno
 import time, threading
 from datetime import datetime
 
+KEY = ""
 API_NAME = "SL_FAULT_INFO"
-URL = 'http://api.sl.se/api2/deviations.json?key=c9b64fea316546cd80a90db8af26aabf'
+URL = 'http://api.sl.se/api2/deviations.json?key='+KEY
 DEST_ROOT = './'
 INTERVAL = 5 * 60
 
