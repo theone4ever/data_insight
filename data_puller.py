@@ -1,3 +1,6 @@
+#!/usr/bin/python
+
+
 import json
 import urllib2
 import os
@@ -6,17 +9,18 @@ import errno
 import time, threading
 from datetime import datetime
 
-KEY = ""
+import sys
+
 API_NAME = "SL_FAULT_INFO"
-URL = 'http://api.sl.se/api2/deviations.json?key='+KEY
+URL = 'http://api.sl.se/api2/deviations.json?key='
 DEST_ROOT = './'
 INTERVAL = 5 * 60
 
 
 def timer():
-    print(time.ctime())
-    result = json.load(urllib2.urlopen(URL))
 
+    result = json.load(urllib2.urlopen(URL))
+    print(time.ctime()+" send " + URL)
     if result['StatusCode'] == 0:
         json_string = json.dumps(result)
         now = datetime.now()
@@ -26,10 +30,18 @@ def timer():
         target = open(mypath + "/" + file_name, 'w')
         target.write(json_string)
         target.close()
+        print(time.ctime()+" finish write")
+
         # TODO ADD logging
     else:
+        print("Get error response from traffic lib")
+        print(json.dumps(result))
 
-    threading.Timer(INTERVAL, timer).start()
+    t = threading.Timer(INTERVAL, timer)
+    t.start()
+    t.join()
+
+
 
 
 def mkdir_p(path):
@@ -39,11 +51,22 @@ def mkdir_p(path):
         if exc.errno == errno.EEXIST and os.path.isdir(path):
             pass
         else:
+            print("error in mkdir")
             raise
 
 
 def main():
-    timer()
-
+    if len(sys.argv) < 3:
+        print("Please provide two input parameter: the root directory for output and the API key")
+        sys.exit(1)
+    else:
+        global DEST_ROOT, URL
+        DEST_ROOT = sys.argv[1]
+        URL = URL + sys.argv[2]
+        print("Root dir is " + DEST_ROOT+", URL is " + URL)
+        timer()
+        # while True:
+        #     time.sleep(1)
 
 if __name__ == "__main__": main()
+
