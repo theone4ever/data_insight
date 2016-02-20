@@ -60,7 +60,7 @@ def main():
         print("Please provide two input parameter: the root directory for output and the API key")
         sys.exit(1)
     else:
-	time.sleep(10)                   # sleep for 10 sec until all service are ready
+	time.sleep(30)                   # sleep for 10 sec until all service are ready
         global DEST_ROOT, URL
         DEST_ROOT = sys.argv[1]
         URL = URL + sys.argv[2]
