@@ -16,8 +16,8 @@ import httplib
 SL_FAULT_INFO_API = "SL_FAULT_INFO"
 TRAFFIC_SITUATION_API = "TRAFFIC_SITUATION"
 ROAD_ACCIDENT_API = "ROAD_ACCIDENT"
-SL_FAULT_INFO_URL = 'http://api1.sl.se/api2/deviations.json?key='
-TRAFFIC_SITUATION_URL = 'http://api1.sl.se/api2/trafficsituation.json?key='
+SL_FAULT_INFO_URL = 'http://api.sl.se/api2/deviations.json?key='
+TRAFFIC_SITUATION_URL = 'http://api.sl.se/api2/trafficsituation.json?key='
 DEST_ROOT = './'
 INTERVAL = 5 * 60
 
