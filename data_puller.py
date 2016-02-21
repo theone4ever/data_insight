@@ -19,7 +19,7 @@ ROAD_ACCIDENT_API = "ROAD_ACCIDENT"
 SL_FAULT_INFO_URL = 'http://api1.sl.se/api2/deviations.json?key='
 TRAFFIC_SITUATION_URL = 'http://api1.sl.se/api2/trafficsituation.json?key='
 DEST_ROOT = './'
-INTERVAL = 5 * 5
+INTERVAL = 5 * 60
 
 data1 = '<REQUEST>\
                 <LOGIN authenticationkey="'
@@ -156,7 +156,7 @@ def main():
         TRAFFIC_SITUATION_URL = TRAFFIC_SITUATION_URL + sys.argv[3]
         data = data1+sys.argv[4]+data2
         print("Root dir is " + DEST_ROOT + ", FAULT_INFO_URL is " + SL_FAULT_INFO_URL + ", TRAFFIC_SITUATION_URL is " + TRAFFIC_SITUATION_URL)
-        time.sleep(3)
+        time.sleep(30)
 
         t1 = Thread(target=pull_sl_fault_info())
         t1.start()
