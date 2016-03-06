@@ -66,10 +66,9 @@ def parseRecord(input: String): List[Accident] = {
   val record = json.extract[RecordType]
   record.RESPONSE.RESULT.head.Situation.flatMap(
     deviation => deviation.Deviation.map(accident =>{
-      accident.Geometry match {
-        case available: GeometryType=> new Accident(parseLocation(available.WGS84), accident.Id,accident.IconId)
-        case _ => new Accident( parseLocation("POINT (0.0 0.0)"), accident.Id, accident.IconId)
-      }
+      new Accident(
+        parseLocation(accident.Geometry.getOrElse(GeometryType("POINT (0.0 0.0)")).WGS84),
+        accident.Id, accident.IconId)
     })
   )
 }
