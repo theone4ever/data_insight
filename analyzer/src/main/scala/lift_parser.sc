@@ -1,6 +1,7 @@
 import net.liftweb.json._
 
-val inputRecord =  """
+val inputRecord =
+  """
         {"RESPONSE":
          {"RESULT":
          [{"Situation": [
@@ -14,7 +15,7 @@ val inputRecord =  """
             {"Deviation": [{"Geometry": {"WGS84": "POINT (11.4423208 58.8538551)"}, "IconId": "roadAccident", "Id": "SE_STA_TRISSID_1_10623074"}]}
           ]
           }]}}
-                   """
+  """
 val inputRecord2 =
   """{"RESPONSE":
      {"RESULT":
@@ -43,16 +44,30 @@ val wgs84 = "POINT (16.8348179 61.236805)"
 
 implicit val formats = net.liftweb.json.DefaultFormats
 
-def parseLocation(wgs84: String)={
-  val pair = wgs84.substring(wgs84.indexOf("(")+1, wgs84.indexOf(")")).split(" ")
+def parseLocation(wgs84: String) = {
+  val pair = wgs84.substring(wgs84.indexOf("(") + 1, wgs84.indexOf(")")).split(" ")
   (pair(1).toFloat, pair(0).toFloat)
 }
-class Accident(location: (Float, Float), id: String, iconId: String) {
-  override def toString(): String = "Accident{Location:" + location + ", id:" + id + ", iconId:"+ iconId+"}";
+
+
+abstract class Event(id: String){
+
+}
+class RoadClosedEvent(id: String, location: (Float, Float)) extends Event(id){
+  override def toString(): String = "RoadClosedEvent(id: %s, location: %s)".format(id, location)
+
+}
+class RoadAccidentEvent(id: String, location: (Float, Float)) extends Event(id){
+  override def toString(): String = "RoadAccidentEvent(id: %s, location: %s)".format(id, location)
+}
+class TrafficMessageEvent(id: String) extends Event(id) {
+  override def toString(): String = "TrafficMessageEvent(id: %s)".format(id)
+
 }
 
 
-def parseRecord(input: String): List[Accident] = {
+
+def parseRecord(input: String): List[Event] = {
 
   case class GeometryType(WGS84: String)
   case class AccidentType(Geometry: Option[GeometryType], IconId: String, Id: String) {
@@ -65,12 +80,16 @@ def parseRecord(input: String): List[Accident] = {
   val json = parse(input)
   val record = json.extract[RecordType]
   record.RESPONSE.RESULT.head.Situation.flatMap(
-    deviation => deviation.Deviation.map(accident =>{
-      new Accident(
-        parseLocation(accident.Geometry.getOrElse(GeometryType("POINT (0.0 0.0)")).WGS84),
-        accident.Id, accident.IconId)
-    })
-  )
+    deviation => deviation.Deviation.map(accident =>
+      accident match {
+        case AccidentType(None, "trafficMessage", id) => new TrafficMessageEvent(id)
+        case AccidentType(Some(geometry), "roadClosed", id) =>
+          new RoadAccidentEvent(id, parseLocation(geometry.WGS84))
+        case AccidentType(Some(geometry), "roadAccident", id) =>
+          new RoadAccidentEvent(id, parseLocation(geometry.WGS84))
+        case _ => throw new Exception("Unknown event type: %s".format(accident))
+      }
+    ))
 }
 
 
